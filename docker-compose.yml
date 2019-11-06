@@ -1,0 +1,219 @@
+version: '3.7'
+
+networks:
+  esnet:
+
+services:
+  node_master1:
+    container_name: node_master1
+    image: test/elasticsearch
+    build:
+      context: dockerfiles/elasticsearch
+      dockerfile: Dockerfile
+    environment:
+        - cluster.name=docker-cluster
+        - node.name=node-master1
+        - bootstrap.memory_lock=true
+        - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+        - node.master=true
+        - node.data=false
+
+    ports:
+      - 19200:9200
+      - 19300:9300
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    networks:
+      - esnet
+    stdin_open: true # 컨테이너에 bash로 붙고 싶을경우 아래 두 옵션을 추가해주면 됩니다.
+    tty: true
+
+  node_data1:
+    container_name: node_data1
+    image: test/elasticsearch
+    build:
+      context: dockerfiles/elasticsearch
+      dockerfile: Dockerfile
+    environment:
+      - cluster.name=docker-cluster
+      - node.name=node-data1
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - "discovery.zen.ping.unicast.hosts=node_master1"
+      - node.master=false
+      - node.data=true
+      - http.enabled=false
+
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    ports:
+      - 19201:9200
+      - 19301:9300
+    networks:
+      - esnet
+    stdin_open: true
+    tty: true
+    depends_on:
+      - node_master1
+
+  node_data2:
+    container_name: node_data2
+    image: test/elasticsearch
+    build:
+      context: dockerfiles/elasticsearch
+      dockerfile: Dockerfile
+    environment:
+      - cluster.name=docker-cluster
+      - node.name=node-data2
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - "discovery.zen.ping.unicast.hosts=node_master1"
+      - node.master=false
+      - node.data=true
+      - http.enabled=false
+
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    ports:
+      - 19202:9200
+      - 19302:9300
+    networks:
+      - esnet
+    stdin_open: true
+    tty: true
+    depends_on:
+      - node_master1
+
+  node_data3:
+    container_name: node_data3
+    image: test/elasticsearch
+    build:
+      context: dockerfiles/elasticsearch
+      dockerfile: Dockerfile
+    environment:
+      - cluster.name=docker-cluster
+      - node.name=node-data3
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - "discovery.zen.ping.unicast.hosts=node_master1"
+      - node.master=false
+      - node.data=true
+      - http.enabled=false
+
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    ports:
+      - 19203:9200
+      - 19303:9300
+    networks:
+      - esnet
+    stdin_open: true
+    tty: true
+    depends_on:
+      - node_master1
+
+  node_data4:
+    container_name: node_data4
+    image: test/elasticsearch
+    build:
+      context: dockerfiles/elasticsearch
+      dockerfile: Dockerfile
+    environment:
+      - cluster.name=docker-cluster
+      - node.name=node-data4
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - "discovery.zen.ping.unicast.hosts=node_master1"
+      - node.master=false
+      - node.data=true
+      - http.enabled=false
+
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    ports:
+      - 19204:9200
+      - 19304:9300
+    networks:
+      - esnet
+    stdin_open: true
+    tty: true
+    depends_on:
+      - node_master1
+
+  node_data5:
+    container_name: node_data5
+    image: test/elasticsearch
+    build:
+      context: dockerfiles/elasticsearch
+      dockerfile: Dockerfile
+    environment:
+      - cluster.name=docker-cluster
+      - node.name=node-data5
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - "discovery.zen.ping.unicast.hosts=node_master1"
+      - node.master=false
+      - node.data=true
+      - http.enabled=false
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    ports:
+      - 19205:9200
+      - 19305:9300
+    networks:
+      - esnet
+    stdin_open: true
+    tty: true
+    depends_on:
+      - node_master1
+
+  node_coordinator:
+    container_name: node_data5
+    image: test/elasticsearch
+    build:
+      context: dockerfiles/elasticsearch
+      dockerfile: Dockerfile
+    environment:
+      - cluster.name=docker-cluster
+      - node.name=node-data5
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - "discovery.zen.ping.unicast.hosts=node_master1"
+      - node.master=false
+      - node.data=false
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    ports:
+      - 19206:9200
+      - 19306:9300
+    networks:
+      - esnet
+    stdin_open: true
+    tty: true
+    depends_on:
+      - node_master1
+  kibana:
+    container_name: kibana
+    image: kibana:6.7.2
+    ports:
+      - 15601:5601
+    environment:
+      ELASTICSEARCH_HOSTS: http://node_master1:9200
+    networks:
+      - esnet
+    depends_on:
+      - node_master1
