@@ -180,7 +180,7 @@ services:
       - node_master1
 
   node_coordinator:
-    container_name: node_data5
+    container_name: node_coordinator
     image: test/elasticsearch
     build:
       context: dockerfiles/elasticsearch
