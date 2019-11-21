@@ -2,6 +2,10 @@ version: '3.7'
 
 networks:
   esnet:
+    ipam:
+      driver: default
+      config:
+        - subnet: 192.168.128.0/24
 
 services:
   node_master1:
@@ -11,13 +15,13 @@ services:
       context: dockerfiles/elasticsearch
       dockerfile: Dockerfile
     environment:
-        - cluster.name=docker-cluster
-        - node.name=node-master1
-        - bootstrap.memory_lock=true
-        - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
-        - node.master=true
-        - node.data=false
-
+      - cluster.name=docker-cluster
+      - node.name=node-master1
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - "discovery.zen.ping.unicast.hosts=192.168.128.101"
+      - node.master=true
+      - node.data=false
     ports:
       - 19200:9200
       - 19300:9300
@@ -26,9 +30,39 @@ services:
         soft: -1
         hard: -1
     networks:
-      - esnet
+      esnet:
+        ipv4_address: 192.168.128.101
     stdin_open: true # 컨테이너에 bash로 붙고 싶을경우 아래 두 옵션을 추가해주면 됩니다.
     tty: true
+
+  node_master2:
+    container_name: node_master2
+    image: test/elasticsearch
+    build:
+      context: dockerfiles/elasticsearch
+      dockerfile: Dockerfile
+    environment:
+      - cluster.name=docker-cluster
+      - node.name=node-master2
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - "discovery.zen.ping.unicast.hosts=192.168.128.101"
+      - node.master=true
+      - node.data=false
+    ports:
+      - 19210:9200
+      - 19310:9300
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    networks:
+      esnet:
+        ipv4_address: 192.168.128.102
+    stdin_open: true # 컨테이너에 bash로 붙고 싶을경우 아래 두 옵션을 추가해주면 됩니다.
+    tty: true
+    depends_on:
+      - node_master1
 
   node_data1:
     container_name: node_data1
@@ -41,22 +75,21 @@ services:
       - node.name=node-data1
       - bootstrap.memory_lock=true
       - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
-      - "discovery.zen.ping.unicast.hosts=node_master1"
+      - "discovery.zen.ping.unicast.hosts=192.168.128.101"
       - node.master=false
       - node.data=true
-      - http.enabled=false
-
     ulimits:
       memlock:
         soft: -1
         hard: -1
-    ports:
-      - 19201:9200
-      - 19301:9300
     networks:
-      - esnet
+      esnet:
+        ipv4_address: 192.168.128.111
     stdin_open: true
     tty: true
+    ports:
+      - 19211:9200
+      - 19311:9300
     depends_on:
       - node_master1
 
@@ -71,20 +104,16 @@ services:
       - node.name=node-data2
       - bootstrap.memory_lock=true
       - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
-      - "discovery.zen.ping.unicast.hosts=node_master1"
+      - "discovery.zen.ping.unicast.hosts=192.168.128.101"
       - node.master=false
       - node.data=true
-      - http.enabled=false
-
     ulimits:
       memlock:
         soft: -1
         hard: -1
-    ports:
-      - 19202:9200
-      - 19302:9300
     networks:
-      - esnet
+      esnet:
+        ipv4_address: 192.168.128.112
     stdin_open: true
     tty: true
     depends_on:
@@ -101,20 +130,16 @@ services:
       - node.name=node-data3
       - bootstrap.memory_lock=true
       - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
-      - "discovery.zen.ping.unicast.hosts=node_master1"
+      - "discovery.zen.ping.unicast.hosts=192.168.128.101"
       - node.master=false
       - node.data=true
-      - http.enabled=false
-
     ulimits:
       memlock:
         soft: -1
         hard: -1
-    ports:
-      - 19203:9200
-      - 19303:9300
     networks:
-      - esnet
+      esnet:
+        ipv4_address: 192.168.128.113
     stdin_open: true
     tty: true
     depends_on:
@@ -131,20 +156,16 @@ services:
       - node.name=node-data4
       - bootstrap.memory_lock=true
       - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
-      - "discovery.zen.ping.unicast.hosts=node_master1"
+      - "discovery.zen.ping.unicast.hosts=192.168.128.101"
       - node.master=false
       - node.data=true
-      - http.enabled=false
-
     ulimits:
       memlock:
         soft: -1
         hard: -1
-    ports:
-      - 19204:9200
-      - 19304:9300
     networks:
-      - esnet
+      esnet:
+        ipv4_address: 192.168.128.114
     stdin_open: true
     tty: true
     depends_on:
@@ -161,36 +182,33 @@ services:
       - node.name=node-data5
       - bootstrap.memory_lock=true
       - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
-      - "discovery.zen.ping.unicast.hosts=node_master1"
+      - "discovery.zen.ping.unicast.hosts=192.168.128.101"
       - node.master=false
       - node.data=true
-      - http.enabled=false
     ulimits:
       memlock:
         soft: -1
         hard: -1
-    ports:
-      - 19205:9200
-      - 19305:9300
     networks:
-      - esnet
+      esnet:
+        ipv4_address: 192.168.128.115
     stdin_open: true
     tty: true
     depends_on:
       - node_master1
 
-  node_coordinator:
-    container_name: node_coordinator
+  node_client1:
+    container_name: node_client1
     image: test/elasticsearch
     build:
       context: dockerfiles/elasticsearch
       dockerfile: Dockerfile
     environment:
       - cluster.name=docker-cluster
-      - node.name=node-data5
+      - node.name=node-client1
       - bootstrap.memory_lock=true
       - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
-      - "discovery.zen.ping.unicast.hosts=node_master1"
+      - "discovery.zen.ping.unicast.hosts=192.168.128.101"
       - node.master=false
       - node.data=false
     ulimits:
@@ -198,22 +216,24 @@ services:
         soft: -1
         hard: -1
     ports:
-      - 19206:9200
-      - 19306:9300
+      - 19220:9200
+      - 19320:9300
     networks:
-      - esnet
+      esnet:
+        ipv4_address: 192.168.128.121
     stdin_open: true
     tty: true
     depends_on:
-      - node_master1
+      - node_master2
+
   kibana:
     container_name: kibana
     image: kibana:6.7.2
     ports:
       - 15601:5601
     environment:
-      ELASTICSEARCH_HOSTS: http://node_master1:9200
+      ELASTICSEARCH_HOSTS: http://192.168.128.121:9200
     networks:
       - esnet
     depends_on:
-      - node_master1
+      - node_client1
