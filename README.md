@@ -2,6 +2,10 @@
 
 master1 => master2 그리고 master2가 사라졌을때에 어떤 현상들이 발생하는지에 대해 조사해보았다.
 
+# 정리자료
+
+![./docs/killed_master_at_cluster.pptx]
+
 # requirements
 - docker, docker-compose
 
