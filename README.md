@@ -4,7 +4,7 @@ master1 => master2 그리고 master2가 사라졌을때에 어떤 현상들이 �
 
 # 정리자료
 
-![./docs/killed_master_at_cluster.pptx]
+![그림자료오~ 이쁘게 정리해놨지롱](./docs/killed_master_at_cluster.pptx)
 
 # requirements
 - docker, docker-compose
